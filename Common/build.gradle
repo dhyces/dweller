@@ -1,0 +1,91 @@
+plugins {
+    id 'maven-publish'
+    alias(libs.plugins.archloom)
+}
+
+base {
+    archivesName = "${mod_name}-common-${libs.versions.minecraft.release.get()}"
+}
+
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    testCompileOnly.extendsFrom(compileOnly)
+}
+
+loom {
+//    accessWidenerPath = file("src/main/resources/trimmed.accesswidener")
+
+//    mixin {
+//        defaultRefmapName = "modid.refmap.json"
+//    }
+
+    runConfigs.configureEach {
+        ideConfigGenerated = false
+    }
+}
+
+dependencies {
+    minecraft libs.minecraft
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${libs.versions.parchment.minecraft.get()}:${libs.versions.parchment.release.get()}@zip")
+    }
+
+    modCompileOnly libs.mixinextras.common
+
+    modCompileOnly libs.fabric.loader
+}
+
+processResources {
+    def buildProps = project.properties.clone()
+    exclude("mods.groovy")
+
+    filesMatching(['pack.mcmeta']) {
+        expand buildProps
+    }
+}
+
+artifacts {
+    commonJava sourceSets.main.java.sourceDirectories.singleFile
+    commonResources sourceSets.main.resources.sourceDirectories.singleFile
+}
+
+sourceSets.main.resources.srcDir 'src/generated/resources'
+
+idea {
+    module {
+        inheritOutputDirs = false
+    }
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+sourcesJar {
+    from(rootProject.file("LICENSE")) {
+        rename { "${it}_${mod_name}" }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+            from components.java
+            pom.withXml {
+                asNode().remove(asNode().dependencies)
+            }
+        }
+    }
+}
