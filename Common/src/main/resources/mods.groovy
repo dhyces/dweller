@@ -21,21 +21,20 @@ ModsDotGroovy.make {
         logoFile = "logo.png"
         description = ""
 
-        onFabricAndQuilt {
+        onFabric {
             entrypoints {
-                main = ""
-                client = ""
+                main = "dev.dhyces.dweller.FabricDweller"
+                client = "dev.dhyces.dweller.FabricDwellerClient"
             }
-        }
-
-        onQuilt {
-            intermediateMappings = "net.fabricmc:intermediary"
         }
 
         dependencies {
             onForge {
                 minecraft = this.minecraftVersionRange
-                forge = ">=${this.libs.versions.neoforge}"
+                mod("neoforge") {
+                    versionRange = ">=${this.libs.versions.neoforge}"
+                    mandatory = true
+                }
             }
 
             onFabric {
@@ -44,13 +43,6 @@ ModsDotGroovy.make {
                 mod('fabric-api') {
                     versionRange = ">=${this.libs.versions.fabric.api.split("+")[0]}"
                 }
-            }
-
-            onQuilt {
-                minecraft = this.minecraftVersion
-                quilt_loader = ">=${this.quiltLoaderVersion}"
-                quilted_fabric_api = ">=${this.buildProperties["quilted_fabric_version"]}"
-                quilt_base = ">=${this.buildProperties["qsl_version"]}"
             }
         }
 
@@ -68,7 +60,7 @@ ModsDotGroovy.make {
         }
     }
 
-    onFabricAndQuilt {
+    onFabric {
         environment = "*"
         mixin = [
                 modid + ".mixins.json"
