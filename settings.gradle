@@ -23,5 +23,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'MultiLoader'
+rootProject.name = 'dweller'
 include("Common", "Fabric", "Neo")
